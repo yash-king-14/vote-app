@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Class Vote — IPL Live</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:     #080C14;
+      --card:   #0E1520;
+      --border: rgba(255,255,255,0.06);
+      --mi:    #004BA0; --mi2:  #005FCC;
+      --csk:   #F5A800; --csk2: #FFD140;
+      --rcb:   #C8102E; --rcb2: #E8213E;
+      --kkr:   #3A225D; --kkr2: #5A3490;
+      --srh:   #F26522; --srh2: #FF8C42;
+      --dc:    #0078BC; --dc2:  #00A0E0;
+      --pbks:  #ED1B24; --pbks2:#FF3B44;
+      --rr:    #E91E8C; --rr2:  #FF3DAD;
+      --lsg:   #4A90D9; --lsg2: #6AAFF5;
+      --gt:    #1C3059; --gt2:  #2E4F8A;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--bg);
+      color: #fff;
+      min-height: 100vh;
+      padding: 48px 20px 80px;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 40% at 50% 0%,  rgba(255,255,255,0.03) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 10% 20%, rgba(0,75,160,0.12)   0%, transparent 60%),
+        radial-gradient(ellipse 50% 35% at 90% 70%, rgba(200,16,46,0.10)  0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 50% 50%, rgba(245,168,0,0.06)  0%, transparent 60%);
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 200%; height: 80%;
+      background: repeating-conic-gradient(from 260deg at 50% 0%, rgba(255,255,255,0.009) 0deg 3deg, transparent 3deg 10deg);
+      pointer-events: none; z-index: 0;
+    }
+    .wrapper { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 44px; animation: fadeDown 0.6s ease both; }
+    .live-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 100px; padding: 5px 14px 5px 10px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+      color: #94A3B8; margin-bottom: 18px;
+    }
+    .live-pill .dot { width: 8px; height: 8px; background: #EF4444; border-radius: 50%; animation: blink 1.2s infinite; box-shadow: 0 0 6px #EF4444; }
+    h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px,9vw,84px); line-height: 1; letter-spacing: 0.04em; color: #fff; }
+    h1 .accent { color: var(--csk); }
+    .tagline { margin-top: 10px; font-size: 15px; font-style: italic; color: #475569; }
+
+    /* Grid */
+    .teams { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 36px; }
+    @media (max-width: 700px) { .teams { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 380px) { .teams { grid-template-columns: 1fr; } }
+
+    .team-card {
+      position: relative; background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px 12px 18px; cursor: pointer; text-align: center;
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+      overflow: hidden; animation: fadeUp 0.5s ease both;
+    }
+    .team-card:nth-child(1)  { animation-delay:.05s } .team-card:nth-child(2)  { animation-delay:.10s }
+    .team-card:nth-child(3)  { animation-delay:.15s } .team-card:nth-child(4)  { animation-delay:.20s }
+    .team-card:nth-child(5)  { animation-delay:.25s } .team-card:nth-child(6)  { animation-delay:.30s }
+    .team-card:nth-child(7)  { animation-delay:.35s } .team-card:nth-child(8)  { animation-delay:.40s }
+    .team-card:nth-child(9)  { animation-delay:.45s } .team-card:nth-child(10) { animation-delay:.50s }
+
+    .team-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:16px 16px 0 0; }
+    .team-card::after  { content:''; position:absolute; inset:0; opacity:0; transition:opacity 0.3s; border-radius:inherit; }
+    .team-card:hover::after { opacity:1; }
+
+    .team-card.mi::before   { background:linear-gradient(90deg,var(--mi),var(--mi2)); }
+    .team-card.csk::before  { background:linear-gradient(90deg,var(--csk),var(--csk2)); }
+    .team-card.rcb::before  { background:linear-gradient(90deg,var(--rcb),var(--rcb2)); }
+    .team-card.kkr::before  { background:linear-gradient(90deg,var(--kkr),var(--kkr2)); }
+    .team-card.srh::before  { background:linear-gradient(90deg,var(--srh),var(--srh2)); }
+    .team-card.dc::before   { background:linear-gradient(90deg,var(--dc),var(--dc2)); }
+    .team-card.pbks::before { background:linear-gradient(90deg,var(--pbks),var(--pbks2)); }
+    .team-card.rr::before   { background:linear-gradient(90deg,var(--rr),var(--rr2)); }
+    .team-card.lsg::before  { background:linear-gradient(90deg,var(--lsg),var(--lsg2)); }
+    .team-card.gt::before   { background:linear-gradient(90deg,var(--gt),var(--gt2)); }
+
+    .team-card.mi::after    { background:radial-gradient(ellipse at 50% 0%,rgba(0,75,160,.14)   0%,transparent 70%); }
+    .team-card.csk::after   { background:radial-gradient(ellipse at 50% 0%,rgba(245,168,0,.12)  0%,transparent 70%); }
+    .team-card.rcb::after   { background:radial-gradient(ellipse at 50% 0%,rgba(200,16,46,.14)  0%,transparent 70%); }
+    .team-card.kkr::after   { background:radial-gradient(ellipse at 50% 0%,rgba(90,52,144,.3)   0%,transparent 70%); }
+    .team-card.srh::after   { background:radial-gradient(ellipse at 50% 0%,rgba(242,101,34,.14) 0%,transparent 70%); }
+    .team-card.dc::after    { background:radial-gradient(ellipse at 50% 0%,rgba(0,120,188,.14)  0%,transparent 70%); }
+    .team-card.pbks::after  { background:radial-gradient(ellipse at 50% 0%,rgba(237,27,36,.14)  0%,transparent 70%); }
+    .team-card.rr::after    { background:radial-gradient(ellipse at 50% 0%,rgba(233,30,140,.14) 0%,transparent 70%); }
+    .team-card.lsg::after   { background:radial-gradient(ellipse at 50% 0%,rgba(74,144,217,.14) 0%,transparent 70%); }
+    .team-card.gt::after    { background:radial-gradient(ellipse at 50% 0%,rgba(46,79,138,.3)   0%,transparent 70%); }
+
+    .team-card.mi:hover   { border-color:rgba(0,75,160,.6);    box-shadow:0 0 28px rgba(0,75,160,.28),    0 8px 28px rgba(0,0,0,.5); transform:translateY(-5px); }
+    .team-card.csk:hover  { border-color:rgba(245,168,0,.6);   box-shadow:0 0 28px rgba(245,168,0,.28),   0 8px 28px rgba(0,0,0,.5); transform:translateY(-5px); }
+    .team-card.rcb:hover  { border-color:rgba(200,16,46,.6);   box-shadow:0 0 28px rgba(200,16,46,.28),   0 8px 28px rgba(0,0,0,.5); transform:translateY(-5px); }
+    .team-card.kkr:hover  { border-color:rgba(90,52,144,.7);   box-shadow:0 0 28px rgba(90,52,144,.35),   0 8px 28px rgba(0,0,0,.5); transform:translateY(-5px); }
+    .team-card.srh:hover  { border-color:rgba(242,101,34,.6);  box-shadow:0 0 28px rgba(242,101,34,.28),  0 8px 28px rgba(0,0,0,.5); transform:translateY(-5px); }
+    .team-card.dc:hover   { border-color:rgba(0,120,188,.6);   box-shadow:0 0 28px rgba(0,120,188,.28),   0 8px 28px rgba(0,0,0,.5); transform:translateY(-5px); }
+    .team-card.pbks:hover { border-color:rgba(237,27,36,.6);   box-shadow:0 0 28px rgba(237,27,36,.28),   0 8px 28px rgba(0,0,0,.5); transform:translateY(-5px); }
+    .team-card.rr:hover   { border-color:rgba(233,30,140,.6);  box-shadow:0 0 28px rgba(233,30,140,.28),  0 8px 28px rgba(0,0,0,.5); transform:translateY(-5px); }
+    .team-card.lsg:hover  { border-color:rgba(74,144,217,.6);  box-shadow:0 0 28px rgba(74,144,217,.28),  0 8px 28px rgba(0,0,0,.5); transform:translateY(-5px); }
+    .team-card.gt:hover   { border-color:rgba(46,79,138,.7);   box-shadow:0 0 28px rgba(46,79,138,.35),   0 8px 28px rgba(0,0,0,.5); transform:translateY(-5px); }
+
+    .team-card.voted { opacity:.35; pointer-events:none; }
+
+    .team-emoji { font-size:34px; margin-bottom:8px; display:block; }
+    .team-name {
+      font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.06em;
+      display:block; margin-bottom:3px; position:relative; z-index:1;
+    }
+    .team-card.mi   .team-name { color:#60A5FA; }
+    .team-card.csk  .team-name { color:var(--csk2); }
+    .team-card.rcb  .team-name { color:#F87171; }
+    .team-card.kkr  .team-name { color:#C084FC; }
+    .team-card.srh  .team-name { color:#FB923C; }
+    .team-card.dc   .team-name { color:#38BDF8; }
+    .team-card.pbks .team-name { color:#FCA5A5; }
+    .team-card.rr   .team-name { color:#F9A8D4; }
+    .team-card.lsg  .team-name { color:#93C5FD; }
+    .team-card.gt   .team-name { color:#BAE6FD; }
+
+    .team-full { font-size:9px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#334155; position:relative; z-index:1; line-height:1.3; }
+
+    .vote-btn {
+      display:inline-block; margin-top:14px; padding:7px 16px; border-radius:100px;
+      font-family:'Barlow',sans-serif; font-size:11px; font-weight:600; letter-spacing:.08em;
+      text-transform:uppercase; border:none; cursor:pointer;
+      transition:filter 0.2s,transform 0.15s; position:relative; z-index:1;
+    }
+    .team-card.mi   .vote-btn { background:linear-gradient(135deg,var(--mi),var(--mi2));     color:#fff; }
+    .team-card.csk  .vote-btn { background:linear-gradient(135deg,var(--csk),var(--csk2));   color:#000; }
+    .team-card.rcb  .vote-btn { background:linear-gradient(135deg,var(--rcb),var(--rcb2));   color:#fff; }
+    .team-card.kkr  .vote-btn { background:linear-gradient(135deg,var(--kkr),var(--kkr2));   color:#fff; }
+    .team-card.srh  .vote-btn { background:linear-gradient(135deg,var(--srh),var(--srh2));   color:#fff; }
+    .team-card.dc   .vote-btn { background:linear-gradient(135deg,var(--dc),var(--dc2));     color:#fff; }
+    .team-card.pbks .vote-btn { background:linear-gradient(135deg,var(--pbks),var(--pbks2)); color:#fff; }
+    .team-card.rr   .vote-btn { background:linear-gradient(135deg,var(--rr),var(--rr2));     color:#fff; }
+    .team-card.lsg  .vote-btn { background:linear-gradient(135deg,var(--lsg),var(--lsg2));   color:#fff; }
+    .team-card.gt   .vote-btn { background:linear-gradient(135deg,var(--gt),var(--gt2));     color:#fff; }
+    .vote-btn:hover { filter:brightness(1.2); transform:scale(1.05); }
+
+    /* Results */
+    .results-panel { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:24px 28px; animation:fadeUp 0.6s 0.55s ease both; }
+    .results-label { font-size:10px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:#334155; margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+    .results-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    .result-row { display:flex; align-items:center; gap:12px; margin-bottom:11px; }
+    .result-row:last-child { margin-bottom:0; }
+    .result-tag { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:.06em; width:50px; flex-shrink:0; }
+
+    .result-row.mi   .result-tag { color:#60A5FA; }
+    .result-row.csk  .result-tag { color:var(--csk2); }
+    .result-row.rcb  .result-tag { color:#F87171; }
+    .result-row.kkr  .result-tag { color:#C084FC; }
+    .result-row.srh  .result-tag { color:#FB923C; }
+    .result-row.dc   .result-tag { color:#38BDF8; }
+    .result-row.pbks .result-tag { color:#FCA5A5; }
+    .result-row.rr   .result-tag { color:#F9A8D4; }
+    .result-row.lsg  .result-tag { color:#93C5FD; }
+    .result-row.gt   .result-tag { color:#BAE6FD; }
+
+    .bar-track { flex:1; height:7px; background:rgba(255,255,255,.05); border-radius:100px; overflow:hidden; }
+    .bar-fill  { height:100%; border-radius:100px; width:0%; transition:width 0.7s cubic-bezier(.34,1.56,.64,1); }
+
+    .result-row.mi   .bar-fill { background:linear-gradient(90deg,var(--mi),var(--mi2)); }
+    .result-row.csk  .bar-fill { background:linear-gradient(90deg,var(--csk),var(--csk2)); }
+    .result-row.rcb  .bar-fill { background:linear-gradient(90deg,var(--rcb),var(--rcb2)); }
+    .result-row.kkr  .bar-fill { background:linear-gradient(90deg,var(--kkr),var(--kkr2)); }
+    .result-row.srh  .bar-fill { background:linear-gradient(90deg,var(--srh),var(--srh2)); }
+    .result-row.dc   .bar-fill { background:linear-gradient(90deg,var(--dc),var(--dc2)); }
+    .result-row.pbks .bar-fill { background:linear-gradient(90deg,var(--pbks),var(--pbks2)); }
+    .result-row.rr   .bar-fill { background:linear-gradient(90deg,var(--rr),var(--rr2)); }
+    .result-row.lsg  .bar-fill { background:linear-gradient(90deg,var(--lsg),var(--lsg2)); }
+    .result-row.gt   .bar-fill { background:linear-gradient(90deg,var(--gt),var(--gt2)); }
+
+    .result-count { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.04em; width:32px; text-align:right; flex-shrink:0; color:#94A3B8; transition:color 0.3s; }
+    .result-row.leading .result-count { color:#fff; }
+
+    .total-votes { text-align:center; margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:11px; color:#334155; font-weight:600; letter-spacing:.1em; text-transform:uppercase; }
+    #total-num { color:#94A3B8; font-family:'Bebas Neue',sans-serif; font-size:18px; }
+
+    .confetti-dot { position:fixed; width:8px; height:8px; border-radius:2px; pointer-events:none; z-index:999; animation:confettiFall 1s ease-out forwards; }
+
+    @keyframes blink    { 0%,100%{opacity:1} 50%{opacity:.2} }
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-24px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeUp   { from{opacity:0;transform:translateY(24px)}  to{opacity:1;transform:translateY(0)} }
+    @keyframes confettiFall { 0%{opacity:1;transform:translateY(0) rotate(0deg)} 100%{opacity:0;transform:translateY(160px) rotate(360deg)} }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="header">
+    <div class="live-pill"><span class="dot"></span> Live Voting</div>
+    <h1>FAVOURITE<br><span class="accent">IPL TEAM?</span></h1>
+    <p class="tagline">Cast your vote. Watch it update in real time.</p>
+  </div>
+
+  <div class="teams">
+
+    <div class="team-card mi" onclick="vote('MI',this)">
+      <span class="team-emoji">🏏</span>
+      <span class="team-name">MI</span>
+      <span class="team-full">Mumbai Indians</span><br>
+      <button class="vote-btn">Vote MI</button>
+    </div>
+
+    <div class="team-card csk" onclick="vote('CSK',this)">
+      <span class="team-emoji">🏅</span>
+      <span class="team-name">CSK</span>
+      <span class="team-full">Chennai Super Kings</span><br>
+      <button class="vote-btn">Vote CSK</button>
+    </div>
+
+    <div class="team-card rcb" onclick="vote('RCB',this)">
+      <span class="team-emoji">🎯</span>
+      <span class="team-name">RCB</span>
+      <span class="team-full">Royal Challengers Bengaluru</span><br>
+      <button class="vote-btn">Vote RCB</button>
+    </div>
+
+    <div class="team-card kkr" onclick="vote('KKR',this)">
+      <span class="team-emoji">⚔️</span>
+      <span class="team-name">KKR</span>
+      <span class="team-full">Kolkata Knight Riders</span><br>
+      <button class="vote-btn">Vote KKR</button>
+    </div>
+
+    <div class="team-card srh" onclick="vote('SRH',this)">
+      <span class="team-emoji">🌟</span>
+      <span class="team-name">SRH</span>
+      <span class="team-full">Sunrisers Hyderabad</span><br>
+      <button class="vote-btn">Vote SRH</button>
+    </div>
+
+    <div class="team-card dc" onclick="vote('DC',this)">
+      <span class="team-emoji">🏟️</span>
+      <span class="team-name">DC</span>
+      <span class="team-full">Delhi Capitals</span><br>
+      <button class="vote-btn">Vote DC</button>
+    </div>
+
+    <div class="team-card pbks" onclick="vote('PBKS',this)">
+      <span class="team-emoji">🥊</span>
+      <span class="team-name">PBKS</span>
+      <span class="team-full">Punjab Kings</span><br>
+      <button class="vote-btn">Vote PBKS</button>
+    </div>
+
+    <div class="team-card rr" onclick="vote('RR',this)">
+      <span class="team-emoji">🏆</span>
+      <span class="team-name">RR</span>
+      <span class="team-full">Rajasthan Royals</span><br>
+      <button class="vote-btn">Vote RR</button>
+    </div>
+
+    <div class="team-card lsg" onclick="vote('LSG',this)">
+      <span class="team-emoji">🤾</span>
+      <span class="team-name">LSG</span>
+      <span class="team-full">Lucknow Super Giants</span><br>
+      <button class="vote-btn">Vote LSG</button>
+    </div>
+
+    <div class="team-card gt" onclick="vote('GT',this)">
+      <span class="team-emoji">🎖️</span>
+      <span class="team-name">GT</span>
+      <span class="team-full">Gujarat Titans</span><br>
+      <button class="vote-btn">Vote GT</button>
+    </div>
+
+  </div>
+
+  <div class="results-panel">
+    <div class="results-label">Live Results</div>
+    <div class="result-row mi"   id="row-MI">   <span class="result-tag">MI</span>   <div class="bar-track"><div class="bar-fill" id="bar-MI"></div></div>   <span class="result-count" id="count-MI">0</span>   </div>
+    <div class="result-row csk"  id="row-CSK">  <span class="result-tag">CSK</span>  <div class="bar-track"><div class="bar-fill" id="bar-CSK"></div></div>  <span class="result-count" id="count-CSK">0</span>  </div>
+    <div class="result-row rcb"  id="row-RCB">  <span class="result-tag">RCB</span>  <div class="bar-track"><div class="bar-fill" id="bar-RCB"></div></div>  <span class="result-count" id="count-RCB">0</span>  </div>
+    <div class="result-row kkr"  id="row-KKR">  <span class="result-tag">KKR</span>  <div class="bar-track"><div class="bar-fill" id="bar-KKR"></div></div>  <span class="result-count" id="count-KKR">0</span>  </div>
+    <div class="result-row srh"  id="row-SRH">  <span class="result-tag">SRH</span>  <div class="bar-track"><div class="bar-fill" id="bar-SRH"></div></div>  <span class="result-count" id="count-SRH">0</span>  </div>
+    <div class="result-row dc"   id="row-DC">   <span class="result-tag">DC</span>   <div class="bar-track"><div class="bar-fill" id="bar-DC"></div></div>   <span class="result-count" id="count-DC">0</span>   </div>
+    <div class="result-row pbks" id="row-PBKS"> <span class="result-tag">PBKS</span> <div class="bar-track"><div class="bar-fill" id="bar-PBKS"></div></div> <span class="result-count" id="count-PBKS">0</span> </div>
+    <div class="result-row rr"   id="row-RR">   <span class="result-tag">RR</span>   <div class="bar-track"><div class="bar-fill" id="bar-RR"></div></div>   <span class="result-count" id="count-RR">0</span>   </div>
+    <div class="result-row lsg"  id="row-LSG">  <span class="result-tag">LSG</span>  <div class="bar-track"><div class="bar-fill" id="bar-LSG"></div></div>  <span class="result-count" id="count-LSG">0</span>  </div>
+    <div class="result-row gt"   id="row-GT">   <span class="result-tag">GT</span>   <div class="bar-track"><div class="bar-fill" id="bar-GT"></div></div>   <span class="result-count" id="count-GT">0</span>   </div>
+    <div class="total-votes">Total Votes &nbsp;<span id="total-num">0</span></div>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+  // 🔴 Replace with your Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database().ref("votes");
+
+  const TEAMS = ['MI','CSK','RCB','KKR','SRH','DC','PBKS','RR','LSG','GT'];
+
+  function vote(team, cardEl) {
+    db.child(team).transaction(count => (count || 0) + 1);
+    document.querySelectorAll('.team-card').forEach(c => c.classList.add('voted'));
+    cardEl.classList.remove('voted');
+    spawnConfetti(cardEl);
+  }
+
+  db.on("value", snap => {
+    const d = snap.val() || {};
+    let total = 0;
+    TEAMS.forEach(t => { total += (d[t] || 0); });
+    const max = Math.max(...TEAMS.map(t => d[t] || 0), 1);
+    TEAMS.forEach(t => {
+      const v = d[t] || 0;
+      document.getElementById("count-" + t).textContent = v;
+      document.getElementById("bar-"   + t).style.width = ((v / max) * 100) + "%";
+      document.getElementById("row-"   + t).classList.toggle('leading', v === max && total > 0 && v > 0);
+    });
+    document.getElementById("total-num").textContent = total;
+  });
+
+  const PALETTE = ['#004BA0','#F5A800','#C8102E','#3A225D','#F26522','#0078BC','#ED1B24','#E91E8C','#4A90D9','#1C3059','#fff'];
+  function spawnConfetti(origin) {
+    const rect = origin.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top  + rect.height / 2;
+    for (let i = 0; i < 24; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'confetti-dot';
+      dot.style.cssText = `left:${cx+(Math.random()-.5)*100}px;top:${cy-10}px;background:${PALETTE[Math.floor(Math.random()*PALETTE.length)]};animation-delay:${Math.random()*.3}s;animation-duration:${.7+Math.random()*.5}s;transform:rotate(${Math.random()*360}deg);`;
+      document.body.appendChild(dot);
+      dot.addEventListener('animationend', () => dot.remove());
+    }
+  }
+</script>
+</body>
+</html>
